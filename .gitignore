@@ -1,0 +1,11 @@
+bin/
+obj/
+*.user
+TestResults/
+.vs/
+__pycache__/
+*.pyc
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl

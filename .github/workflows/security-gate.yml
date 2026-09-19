@@ -1,0 +1,21 @@
+# Deterministic, non-AI enforcement layer; the job name `security-gate` is intentionally stable for branch protection required status checks.
+name: Security Gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  security-gate:
+    name: security-gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Run security gate unit tests
+        run: python -m unittest discover -s scripts -p "test_*.py" -v
+      - name: Run deterministic security gate
+        run: python scripts/security_gate.py
