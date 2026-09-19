@@ -1,0 +1,32 @@
+# Deterministic static validation only: fmt-check + validate. Never runs
+# `plan` or `apply`, and never touches real AWS credentials, matching
+# this repository's reference-only infrastructure policy.
+name: Terraform Validate
+
+on:
+  pull_request:
+    paths:
+      - "infrastructure/**"
+  push:
+    branches: [main]
+    paths:
+      - "infrastructure/**"
+
+jobs:
+  terraform-validate:
+    name: terraform-validate
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infrastructure
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+      - name: Terraform fmt check
+        run: terraform fmt -check -recursive
+      - name: Terraform init (no backend, no credentials)
+        run: terraform init -backend=false -input=false
+      - name: Terraform validate
+        run: terraform validate
