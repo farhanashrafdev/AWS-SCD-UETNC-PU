@@ -1,0 +1,22 @@
+# Builds the API and runs xUnit tests on every pull request and on pushes to main.
+name: Build and Test
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - name: Restore test project dependencies
+        run: dotnet restore tests/DemoApi.Tests/DemoApi.Tests.csproj
+      - name: Build test project
+        run: dotnet build tests/DemoApi.Tests/DemoApi.Tests.csproj --no-restore --configuration Release
+      - name: Run xUnit tests
+        run: dotnet test tests/DemoApi.Tests/DemoApi.Tests.csproj --no-build --configuration Release --logger "console;verbosity=normal"
