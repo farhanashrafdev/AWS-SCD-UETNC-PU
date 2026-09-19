@@ -21,6 +21,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
+// Used by the Kubernetes readiness/liveness probes in
+// gitops/manifests/demo-api/deployment.yaml.
+app.MapGet("/health", () => Results.Ok(new { status = "healthy" }))
+    .AllowAnonymous();
+
 app.Run();
 
 // Lets the test project reference the app through WebApplicationFactory<Program>.

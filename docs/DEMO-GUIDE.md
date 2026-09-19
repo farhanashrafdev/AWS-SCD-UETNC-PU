@@ -135,6 +135,35 @@ python scripts/security_gate.py
 echo $?
 ```
 
+## Touring the infrastructure and GitOps layer (reference only)
+
+This part of the repository is for discussion, not execution. Never run
+`terraform apply` or `kubectl apply` against these files during the
+talk.
+
+1. Open `infrastructure/README.md` and explain the reference-only rule
+   up front, before showing any code.
+2. Open `infrastructure/vpc.tf` and `infrastructure/eks.tf` and point out
+   the secure default: `cluster_endpoint_public_access = false`.
+3. Open `infrastructure/iam.tf` and connect it back to PR 2: this IRSA
+   role is the real fix for the hardcoded secret, not just deleting the
+   line from source.
+4. Open `infrastructure/argocd.tf` and explain the handoff: Terraform
+   installs ArgoCD with Helm and applies one root `Application`, then
+   ArgoCD takes over.
+5. Open `gitops/apps/demo-api-application.yaml` and
+   `gitops/manifests/demo-api/deployment.yaml` and explain that this is
+   what ArgoCD would continuously reconcile against the cluster.
+6. Show the `terraform-validate` check passing on GitHub Actions and
+   explain that this is the one part of this layer that is real: syntax
+   and type validation with no credentials and no real resources.
+
+### Optional extension if time allows
+
+Add two to three minutes after the ten-minute version to walk through
+the section above. Keep it conceptual: no terminal commands are run
+against AWS or a cluster.
+
 ## Five-minute version of the demo
 
 1. **0:00-1:00** - Introduce the repository, the pull request, and the idea of AI review plus deterministic policy.

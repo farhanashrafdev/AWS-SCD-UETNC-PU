@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: agentic-devsecops-demo
+  namespace: argocd
+spec:
+  description: >-
+    Reference-only project scoping what ArgoCD is allowed to deploy for
+    the agentic DevSecOps demo. Never applied to a real cluster.
+  sourceRepos:
+    - https://github.com/farhanashrafdev/AWS-SCD-UETNC-PU.git
+  destinations:
+    - namespace: demo-api
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+  namespaceResourceWhitelist:
+    - group: "apps"
+      kind: Deployment
+    - group: ""
+      kind: Service
+    - group: ""
+      kind: ServiceAccount

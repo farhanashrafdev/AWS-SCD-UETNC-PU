@@ -46,14 +46,40 @@ Checks pass
 Human approves the PR
 ```
 
+## Infrastructure and GitOps (reference only)
+
+The same "X as Code" idea extends past the application. `infrastructure/`
+describes a small AWS platform (VPC, EKS, IAM) and installs ArgoCD onto
+it; `gitops/` describes what ArgoCD then keeps in sync. **Neither
+directory is ever applied to a real cluster.** See
+`infrastructure/README.md` and `gitops/README.md` for the full
+explanation, and `.github/workflows/terraform-validate.yml` for the one
+check on this layer that *does* run for real: `terraform fmt` and
+`terraform validate`, with no credentials and no real resources.
+
+```mermaid
+flowchart LR
+    A[Terraform] -->|provisions| B[VPC + EKS]
+    A -->|installs via Helm| C[ArgoCD]
+    A -->|applies once| D[Root Application]
+    D -->|hands off to| C
+    C -->|watches| E[gitops/manifests/demo-api]
+    E -->|syncs| F[demo-api Deployment on EKS]
+```
+
+Terraform provisions the platform once. From the moment the root
+`Application` is applied, ArgoCD - not Terraform - keeps the cluster
+matching `gitops/manifests/demo-api`.
+
 ## Repository map
 
 - `.github/` - GitHub workflows, pull request templates, and Copilot instructions
 - `agents/` - the security agent persona used for reviews
-- `src/DemoApi/` - the minimal Web API used in the demo
+- `src/DemoApi/` - the minimal Web API used in the demo, plus the reference `Dockerfile` it would be built from
 - `tests/` - xUnit tests
 - `scripts/security_gate.py` - the deterministic security gate
-- `infrastructure/` - placeholder Terraform that is never applied
+- `infrastructure/` - reference-only Terraform: VPC, EKS, IAM, and the Helm-based ArgoCD bootstrap; never applied
+- `gitops/` - reference-only ArgoCD `AppProject`/`Application` and Kubernetes manifests that the bootstrap hands off to
 - `examples/` - prepared expected reviews and fixes for the three demo pull requests
 - `docs/` - the presenter demo guide and screenshot checklist
 
